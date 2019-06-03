@@ -2,54 +2,71 @@ language: r
 cache: packages
 
 before_install:
-  - sudo add-apt-repository ppa:webupd8team/java -y
-  - sudo apt-get update -q
-  
+  - if $RUN_SETUP; then chmod +x travissetup.sh; ./travissetup.sh;
+    else echo hi there; fi
+
 r_packages:
   - covr
-  
+
 r_github_packages:
   - miraisolutions/xlconnectjars
-  
+
 matrix:
   include:
     - r: release
+      os: linux
+      dist: trusty
+      env: RUN_SETUP=false
       addons:
         apt:
+          sources:
+            - sourceline: 'ppa:webupd8team/java'
           packages:
-            - oracle-java8-installer
+            - oracle-java8-installer # note that java9 is not available through webupd8team ppa anymore
             - oracle-java8-set-default
     - r: release
-      addons:
-        apt:
-          packages:
-            - oracle-java9-installer
-            - oracle-java9-set-default
+      os: linux
+      dist: xenial # https://docs.travis-ci.com/user/reference/xenial/
+      env: RUN_SETUP=true
+    - r: release
+      os: osx
+      osx_image: xcode10.1 # https://docs.travis-ci.com/user/reference/osx/
+      env: RUN_SETUP=true
     - r: devel
+      os: linux
+      dist: trusty
+      env: RUN_SETUP=false
       addons:
         apt:
+          sources:
+            - sourceline: 'ppa:webupd8team/java'
           packages:
             - oracle-java8-installer
             - oracle-java8-set-default
     - r: devel
-      addons:
-        apt:
-          packages:
-            - oracle-java9-installer
-            - oracle-java9-set-default
+      os: linux
+      dist: xenial
+      env: RUN_SETUP=false
     - r: oldrel
+      os: osx
+      osx_image: xcode10.1
+      env: RUN_SETUP=true
+    - r: oldrel
+      os: linux
+      dist: trusty
+      env: RUN_SETUP=false
       addons:
         apt:
+          sources:
+            - sourceline: 'ppa:webupd8team/java'
           packages:
             - oracle-java8-installer
             - oracle-java8-set-default
     - r: oldrel
-      addons:
-        apt:
-          packages:
-            - oracle-java9-installer
-            - oracle-java9-set-default
-  
+      os: linux
+      dist: xenial
+      env: RUN_SETUP=false
+
 script:
   - |
     java -version
